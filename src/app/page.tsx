@@ -37,7 +37,7 @@ export default function Home() {
   const jogosExibidos = abaAtiva === 'PROXIMOS' ? jogosProximos : jogosResultados;
 
   return (
-    <div className="min-h-screen overflow-y-scroll bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30 pb-10">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30 pb-10">
       
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/5">

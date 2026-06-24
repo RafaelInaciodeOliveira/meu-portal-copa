@@ -24,3 +24,27 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Customização da Barra de Rolagem (Scrollbar) para o Tema Escuro */
+::-webkit-scrollbar {
+  width: 8px; /* Deixa a barra mais fininha e elegante */
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b; /* Fundo igual ao bg-zinc-950 do site */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a; /* Cor da barrinha (zinc-800) */
+  border-radius: 4px; /* Deixa as pontas arredondadas */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #10b981; /* Fica verde (emerald-500) quando passa o mouse */
+}
+
+/* Regra para o navegador Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #27272a #09090b;
+}
