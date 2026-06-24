@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
 
@@ -8,16 +8,29 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Home() {
   const [abaAtiva, setAbaAtiva] = useState<'PROXIMOS' | 'RESULTADOS'>('PROXIMOS');
+  
+  // ESTADOS DOS MODAIS
+  const [jogoClicado, setJogoClicado] = useState<number | null>(null);
+  const [jogadorClicado, setJogadorClicado] = useState<string | null>(null);
 
-  const { data: dataJogos, error: erroJogos, isLoading: loadJogos } = useSWR('/api/jogos', fetcher, {
-    refreshInterval: 15000, 
-  });
+  // TRAVA O SCROLL DA TELA QUANDO UM MODAL ABRE
+  useEffect(() => {
+    if (jogoClicado || jogadorClicado) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => document.body.classList.remove('overflow-hidden');
+  }, [jogoClicado, jogadorClicado]);
 
+  // BUSCAS NA API (As originais e as novas dos modais)
+  const { data: dataJogos, error: erroJogos, isLoading: loadJogos } = useSWR('/api/jogos', fetcher, { refreshInterval: 15000 });
   const { data: dataArtilheiros, isLoading: loadArtilheiros } = useSWR('/api/artilheiros', fetcher);
+  
+  const { data: dadosJogo, isLoading: loadDadosJogo } = useSWR(jogoClicado ? `/api/jogos/${jogoClicado}` : null, fetcher);
+  const { data: dadosJogador, isLoading: loadDadosJogador } = useSWR(jogadorClicado ? `/api/jogadores/${jogadorClicado}` : null, fetcher);
 
   const todosOsJogos = dataJogos?.matches || [];
-  
-  // AQUI ESTÁ A CORREÇÃO: Força a mostrar apenas os 10 primeiros
   const topArtilheiros = dataArtilheiros?.scorers?.slice(0, 10) || [];
 
   const jogosProximos = todosOsJogos
@@ -40,7 +53,7 @@ export default function Home() {
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-emerald-500/30 pb-10">
       
       {/* NAVBAR */}
-      <nav className="sticky top-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/5">
+      <nav className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <h1 className="text-2xl font-black tracking-tighter text-white">
@@ -61,6 +74,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           <section className="lg:col-span-2 flex flex-col gap-8">
+            {/* TRANSMISSÃO OFICIAL */}
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold flex items-center gap-2 text-white">
@@ -95,6 +109,7 @@ export default function Home() {
               </div>
             </div>
 
+            {/* ARTILHEIROS */}
             <div className="flex flex-col gap-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 Chuteira de Ouro (Top Artilheiros)
@@ -108,11 +123,14 @@ export default function Home() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-rows-5 md:grid-flow-col md:auto-cols-fr gap-4">
                     {topArtilheiros.map((scorer: any, index: number) => (
-                      <div key={scorer.player.id} className="flex items-center justify-between bg-zinc-950 p-3 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-all">
-                        
+                      <div 
+                        key={scorer.player.id} 
+                        onClick={() => setJogadorClicado(scorer.player.name)}
+                        className="flex items-center justify-between bg-zinc-950 p-3 rounded-xl border border-white/5 hover:border-emerald-500/50 hover:bg-zinc-900 transition-all cursor-pointer group"
+                      >
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-3">
-                            <span className="text-zinc-600 font-black text-lg w-4">{index + 1}</span>
+                            <span className="text-zinc-600 font-black text-lg w-4 group-hover:text-emerald-500 transition-colors">{index + 1}</span>
                             <div className="w-10 h-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-400 font-bold overflow-hidden relative">
                               {scorer.player.name.charAt(0)}
                             </div>
@@ -127,11 +145,10 @@ export default function Home() {
                           </div>
                         </div>
 
-                        <div className="flex flex-col items-center justify-center bg-zinc-900 px-3 py-1 rounded-lg border border-white/5">
+                        <div className="flex flex-col items-center justify-center bg-zinc-900 group-hover:bg-zinc-950 px-3 py-1 rounded-lg border border-white/5">
                           <span className="text-emerald-400 font-black text-lg leading-none">{scorer.goals}</span>
                           <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Gols</span>
                         </div>
-
                       </div>
                     ))}
                   </div>
@@ -141,6 +158,7 @@ export default function Home() {
 
           </section>
 
+          {/* CENTRAL DE JOGOS */}
           <section className="flex flex-col gap-4 h-full">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">
               Central de Jogos
@@ -170,7 +188,6 @@ export default function Home() {
             </div>
 
             <div className="flex-1 bg-zinc-900/50 border border-white/5 rounded-2xl p-4 overflow-y-auto max-h-[595px] scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-              
               {loadJogos && (
                 <div className="flex flex-col items-center justify-center h-40 gap-3">
                   <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
@@ -194,7 +211,11 @@ export default function Home() {
                   const golsFora = jogo.score?.fullTime?.away ?? jogo.score?.regularTime?.away ?? 0;
 
                   return (
-                    <div key={jogo.id} className={`group bg-zinc-900 hover:bg-zinc-800 rounded-xl p-4 border transition-all duration-300 ${isAoVivo ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-white/5 hover:border-zinc-600'}`}>
+                    <div 
+                      key={jogo.id} 
+                      onClick={() => setJogoClicado(jogo.id)}
+                      className={`group bg-zinc-900 hover:bg-zinc-800 cursor-pointer rounded-xl p-4 border transition-all duration-300 ${isAoVivo ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-white/5 hover:border-emerald-500/30'}`}
+                    >
                       <div className="flex justify-between items-center mb-4">
                         <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded ${
                           isAoVivo ? 'bg-red-500/10 text-red-500 border border-red-500/20 animate-pulse' : 
@@ -203,7 +224,7 @@ export default function Home() {
                         }`}>
                           {isEncerrado ? 'Encerrado' : isAoVivo ? '🔴 Ao Vivo' : 'A Iniciar'}
                         </span>
-                        <span className="text-xs text-zinc-500 font-medium">
+                        <span className="text-xs text-zinc-500 font-medium group-hover:text-white transition-colors">
                           {isFuturo 
                             ? new Date(jogo.utcDate).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) 
                             : new Date(jogo.utcDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
@@ -214,7 +235,7 @@ export default function Home() {
                           <img src={jogo.homeTeam.crest} alt={jogo.homeTeam.shortName} className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" />
                           <span className="font-semibold text-sm text-center line-clamp-1">{jogo.homeTeam.shortName}</span>
                         </div>
-                        <div className="flex items-center justify-center gap-2 w-[30%] font-black text-2xl">
+                        <div className="flex items-center justify-center gap-2 w-[30%] font-black text-2xl group-hover:scale-110 transition-transform">
                           {isFuturo ? (
                             <span className="text-zinc-600 text-lg">- x -</span>
                           ) : (
@@ -236,11 +257,152 @@ export default function Home() {
               </div>
             </div>
           </section>
-
         </div>
       </main>
 
-      {/* RODAPÉ COM SUA ASSINATURA */}
+      {/* MODAL 1: PERFIL DO JOGADOR (ATUALIZADO COM FOTO DA API-FOOTBALL) */}
+      {jogadorClicado && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-zinc-900/50">
+              <h3 className="text-xl font-black text-white">Raio-X do Atleta</h3>
+              <button onClick={() => setJogadorClicado(null)} className="text-zinc-500 hover:text-white bg-zinc-900 hover:bg-zinc-800 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              {loadDadosJogador ? (
+                <div className="flex flex-col items-center justify-center py-10 gap-3">
+                  <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-sm text-zinc-500">Buscando foto e dados reais...</span>
+                </div>
+              ) : dadosJogador && !dadosJogador.message ? (
+                <div className="flex flex-col items-center text-center gap-6">
+                  
+                  {/* FOTO REAL DO JOGADOR */}
+                  <div className="w-32 h-32 rounded-full border-4 border-emerald-500/20 p-1 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.15)] bg-zinc-900">
+                    <img src={dadosJogador.foto} alt={dadosJogador.nome} className="w-full h-full object-cover rounded-full" />
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-2xl font-black text-white">{dadosJogador.nome}</h4>
+                    <p className="text-emerald-500 font-medium">{dadosJogador.posicao || 'Jogador'}</p>
+                  </div>
+                  
+                  <div className="w-full bg-zinc-900 rounded-xl p-4 grid grid-cols-2 gap-4 border border-white/5 text-left">
+                    <div>
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Nacionalidade</p>
+                      <p className="text-sm text-white font-medium">{dadosJogador.nacionalidade || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Idade</p>
+                      <p className="text-sm text-white font-medium">{dadosJogador.idade ? `${dadosJogador.idade} anos` : '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Altura</p>
+                      <p className="text-sm text-white font-medium">{dadosJogador.altura || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Peso</p>
+                      <p className="text-sm text-white font-medium">{dadosJogador.peso || '-'}</p>
+                    </div>
+                    
+                    {dadosJogador.clube && (
+                      <div className="col-span-2 flex items-center justify-between bg-zinc-950 p-3 rounded-lg border border-white/5 mt-2">
+                        <div className="flex flex-col">
+                          <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Clube Atual</p>
+                          <span className="text-white font-bold">{dadosJogador.clube}</span>
+                        </div>
+                        {dadosJogador.escudoClube && (
+                          <img src={dadosJogador.escudoClube} alt={dadosJogador.clube} className="w-10 h-10 object-contain drop-shadow-md" />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <p className="text-zinc-500">Dados do jogador não encontrados na base.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: MATCH CENTER (DETALHES DO JOGO) */}
+      {jogoClicado && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-zinc-900/50">
+              <h3 className="text-xl font-black text-white">Match Center</h3>
+              <button onClick={() => setJogoClicado(null)} className="text-zinc-500 hover:text-white bg-zinc-900 hover:bg-zinc-800 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              {loadDadosJogo ? (
+                <div className="flex justify-center py-10"><div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>
+              ) : dadosJogo ? (
+                <div className="flex flex-col gap-6">
+                  {/* Placar */}
+                  <div className="flex items-center justify-center gap-6 bg-zinc-900 p-6 rounded-2xl border border-white/5">
+                    <div className="flex flex-col items-center gap-2 w-1/3">
+                      <img src={dadosJogo.homeTeam.crest} alt={dadosJogo.homeTeam.name} className="w-16 h-16 drop-shadow-lg" />
+                      <span className="font-bold text-white text-center">{dadosJogo.homeTeam.shortName}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <div className="text-4xl font-black text-white bg-zinc-950 px-4 py-2 rounded-xl border border-white/10">
+                        {dadosJogo.score?.fullTime?.home ?? 0} - {dadosJogo.score?.fullTime?.away ?? 0}
+                      </div>
+                      <span className="text-xs text-emerald-500 font-bold uppercase mt-2">{dadosJogo.status}</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 w-1/3">
+                      <img src={dadosJogo.awayTeam.crest} alt={dadosJogo.awayTeam.name} className="w-16 h-16 drop-shadow-lg" />
+                      <span className="font-bold text-white text-center">{dadosJogo.awayTeam.shortName}</span>
+                    </div>
+                  </div>
+
+                  {/* Detalhes da Partida */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Estádio */}
+                    <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-2">🏟️ Informações</p>
+                      <p className="text-sm text-white mb-1"><strong>Estádio:</strong> {dadosJogo.venue || 'Não informado'}</p>
+                      <p className="text-sm text-white"><strong>Data:</strong> {new Date(dadosJogo.utcDate).toLocaleString('pt-BR')}</p>
+                    </div>
+                    
+                    {/* Arbitragem */}
+                    <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-2">⚖️ Arbitragem principal</p>
+                      <p className="text-sm text-white">
+                        {dadosJogo.referees && dadosJogo.referees.length > 0 ? dadosJogo.referees[0].name : 'Não informado'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Gols marcados */}
+                  {dadosJogo.goals && dadosJogo.goals.length > 0 && (
+                    <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-3">⚽ Gols da Partida</p>
+                      <div className="space-y-2">
+                        {dadosJogo.goals.map((gol: any, index: number) => (
+                          <div key={index} className="flex items-center gap-3 bg-zinc-950 p-2 rounded-lg border border-white/5">
+                            <span className="text-emerald-500 font-bold text-sm w-8">{gol.minute}'</span>
+                            <span className="text-white text-sm font-medium">{gol.scorer?.name}</span>
+                            <span className="text-zinc-500 text-xs ml-auto">({gol.team?.name})</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-center text-zinc-500">Erro ao carregar partida.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RODAPÉ */}
       <footer className="w-full max-w-7xl mx-auto px-4 py-8 mt-auto border-t border-white/5 flex items-center justify-center">
         <p className="text-sm text-zinc-500">
           Desenvolvido com <span className="text-emerald-500">💚</span> e muito código por <span className="font-bold text-zinc-300">Rafael Inacio</span>.
