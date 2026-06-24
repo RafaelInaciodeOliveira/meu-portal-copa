@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏆 CopaPortal
 
-## Getting Started
+O **CopaPortal** é uma plataforma moderna e em tempo real para acompanhamento da Copa do Mundo. Desenvolvido com foco em performance e experiência do usuário (UX/UI), o portal oferece resultados ao vivo, tabelas de classificação, estatísticas de jogadores e em breve um sistema completo de notícias.
 
-First, run the development server:
+## 🚀 Funcionalidades
 
+- **🔴 Central de Jogos Ao Vivo:** Acompanhe os placares em tempo real com atualização automática a cada 15 segundos.
+- **📊 Fase de Grupos:** Tabelas completas e atualizadas automaticamente com pontos, vitórias, saldo de gols e classificação.
+- **👟 Estatísticas Individuais:** Rankings interativos da Chuteira de Ouro (Artilheiros) e Top Garçons (Assistências).
+- **📺 Transmissão Oficial:** Área dedicada para integração com transmissões ao vivo via YouTube (ex: CazéTV).
+- **📰 Portal de Notícias:** (Em desenvolvimento) Sistema de notícias gerenciado via banco de dados próprio.
+
+## 💻 Tecnologias Utilizadas
+
+Este projeto foi construído utilizando as ferramentas mais modernas do ecossistema front-end:
+
+- **[Next.js](https://nextjs.org/)** - Framework React com App Router.
+- **[Tailwind CSS](https://tailwindcss.com/)** - Estilização focada em utilitários com design *Dark Premium*.
+- **[SWR](https://swr.vercel.app/)** - Biblioteca da Vercel para *data fetching*, cache e atualizações em tempo real (Long Polling).
+- **[Football-Data API](https://www.football-data.org/)** - Consumo de dados oficiais da competição (REST API).
+
+## 🛠️ Como rodar o projeto na sua máquina
+
+### Pré-requisitos
+Antes de começar, você vai precisar ter o [Node.js](https://nodejs.org/) instalado na sua máquina.
+
+### 1. Clonando o repositório
 ```bash
+git clone [https://github.com/SEU_USUARIO/copaportal.git](https://github.com/SEU_USUARIO/copaportal.git)
+cd copaportal
+2. Instalando as dependências
+Bash
+npm install
+3. Configurando as Variáveis de Ambiente
+Crie um arquivo chamado .env.local na raiz do projeto e adicione as suas chaves. Você precisará de um Token gratuito da football-data.org.
+
+Plaintext
+# Arquivo: .env.local
+FOOTBALL_DATA_TOKEN=seu_token_da_api_aqui
+
+# (Opcional) Banco de dados para a seção de notícias que faremos em breve
+MONGODB_URI=sua_url_do_mongodb_aqui
+4. Rodando o Servidor de Desenvolvimento
+Bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Abra o seu navegador e acesse http://localhost:3000 para ver a mágica acontecer! As páginas são atualizadas automaticamente conforme você edita os arquivos.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+📂 Estrutura de Rotas Atuais
+/ - Home / Ao Vivo: Painel principal com a transmissão e a lista de jogos do dia.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+/grupos - Tabelas: A classificação completa dos 8 grupos da Copa.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+/estatisticas - Estatísticas: Painel detalhado com o ranking de jogadores.
 
-## Learn More
+(Em breve) /noticias - Notícias: Feed de atualizações e matérias.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+Desenvolvido com 💚 e muito código por **[Rafael Inacio](https://github.com/RafaelInaciodeOliveira)**.
