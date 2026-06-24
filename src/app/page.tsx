@@ -106,7 +106,7 @@ export default function Home() {
                 ) : topArtilheiros.length === 0 ? (
                   <p className="text-sm text-zinc-500 text-center py-4">Nenhum gol marcado na competição ainda.</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-rows-5 md:grid-flow-col md:auto-cols-fr gap-4">
                     {topArtilheiros.map((scorer: any, index: number) => (
                       <div key={scorer.player.id} className="flex items-center justify-between bg-zinc-950 p-3 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-all">
                         
