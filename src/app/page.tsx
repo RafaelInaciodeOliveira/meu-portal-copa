@@ -63,7 +63,7 @@ export default function Home() {
               <Link href="/" className="text-white hover:text-emerald-400 transition">Ao Vivo</Link>
               <Link href="/grupos" className="hover:text-white transition">Grupos</Link>
               <Link href="/estatisticas" className="hover:text-white transition">Estatísticas</Link>
-              <Link href="#" className="hover:text-white transition">Notícias</Link>
+              <Link href="/noticias" className="hover:text-white transition">Notícias</Link>
             </div>
           </div>
         </div>

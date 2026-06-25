@@ -66,7 +66,7 @@ export default function Grupos() {
               <Link href="/" className="hover:text-white transition">Ao Vivo</Link>
               <Link href="/grupos" className="text-white hover:text-emerald-400 transition">Grupos</Link>
               <Link href="/estatisticas" className="hover:text-white transition">Estatísticas</Link>
-              <Link href="#" className="hover:text-white transition">Notícias</Link>
+              <Link href="/noticias" className="hover:text-white transition">Notícias</Link>
             </div>
           </div>
         </div>

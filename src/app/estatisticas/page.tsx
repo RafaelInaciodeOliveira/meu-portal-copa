@@ -70,7 +70,7 @@ export default function EstatisticasPage() {
               <Link href="/" className="hover:text-white transition">Ao Vivo</Link>
               <Link href="/grupos" className="hover:text-white transition">Grupos</Link>
               <Link href="/estatisticas" className="text-white hover:text-emerald-400 transition">Estatísticas</Link>
-              <Link href="#" className="hover:text-white transition">Notícias</Link>
+              <Link href="/noticias" className="hover:text-white transition">Notícias</Link>
             </div>
           </div>
         </div>
