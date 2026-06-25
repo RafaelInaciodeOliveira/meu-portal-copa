@@ -36,8 +36,7 @@ export default function Grupos() {
   const melhoresTerceiros = tabelasDosGrupos
     .map((grupo: any) => {
       const terceiro = grupo.table.find((linha: any) => linha.position === 3);
-      // Limpa a string do grupo para evitar "Grupo Group B" (pega só a última letra)
-      const letra = grupo.group.split(' ').pop().split('_').pop();
+      const letra = grupo.group.split(/[_ ]/).pop(); 
       if (terceiro) return { ...terceiro, letraGrupo: letra };
       return null;
     })
@@ -50,7 +49,7 @@ export default function Grupos() {
       return golsB - golsA;
     });
 
-  // Salva apenas os IDs dos 8 melhores terceiros para podermos pintar eles de laranja nos grupos
+  // Salva apenas os IDs dos 8 melhores terceiros
   const idsDosOitoMelhores = melhoresTerceiros.slice(0, 8).map((t: any) => t.team.id);
 
   return (
@@ -81,10 +80,40 @@ export default function Grupos() {
           <p className="text-zinc-400 mt-2">Classificação atualizada da Copa do Mundo. Clique em uma seleção para ver o elenco.</p>
         </header>
 
+        {/* ==========================================
+            👻 SKELETON LOADER (CARREGAMENTO PREMIUM)
+            ========================================== */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center h-40 gap-3">
-            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-sm text-zinc-500">Buscando dados das tabelas...</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+            {/* Vamos desenhar 4 tabelas fantasmas para preencher a tela */}
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden animate-pulse">
+                {/* Cabeçalho da Tabela Fantasma */}
+                <div className="bg-zinc-800/30 px-4 py-4 border-b border-white/5">
+                  <div className="h-5 bg-zinc-800 rounded w-24"></div>
+                </div>
+                {/* Corpo da Tabela Fantasma */}
+                <div className="p-0">
+                  <div className="w-full">
+                    {/* Linha de Títulos */}
+                    <div className="bg-zinc-950/50 px-4 py-3 border-b border-white/5 flex gap-4">
+                       <div className="h-3 bg-zinc-800 rounded w-4"></div>
+                       <div className="h-3 bg-zinc-800 rounded w-16 ml-2"></div>
+                       <div className="h-3 bg-zinc-800 rounded w-32 ml-auto"></div>
+                    </div>
+                    {/* 4 Linhas de Times (As bolinhas simulam os escudos e as barras os nomes/pontos) */}
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="px-4 py-4 border-b border-white/5 flex gap-4 items-center">
+                        <div className="h-4 bg-zinc-800 rounded w-4"></div>
+                        <div className="h-6 w-6 bg-zinc-800 rounded-full ml-2"></div>
+                        <div className="h-4 bg-zinc-800 rounded w-24"></div>
+                        <div className="h-4 bg-zinc-800 rounded w-[40%] ml-auto"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -92,28 +121,28 @@ export default function Grupos() {
           <p className="text-red-500 text-center py-10">Erro ao carregar a classificação.</p>
         )}
 
-        {/* TABELAS DOS GRUPOS */}
+        {/* TABELAS DOS GRUPOS (SÓ APARECEM QUANDO CARREGAR) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {!isLoading && !error && tabelasDosGrupos.map((grupo: any) => (
             <div key={grupo.group} className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden">
               <div className="bg-zinc-900 px-4 py-3 border-b border-white/5 flex items-center justify-between">
                 <h3 className="font-bold text-white tracking-wide">
-                  {grupo.group.replace('_', ' ')}
+                  Grupo {grupo.group.split(/[_ ]/).pop()}
                 </h3>
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left">
+                <table className="w-full text-sm text-left table-fixed min-w-[400px]">
                   <thead className="bg-zinc-950/50 text-xs text-zinc-500 uppercase font-semibold">
                     <tr>
-                      <th className="px-4 py-3 w-8 text-center">#</th>
-                      <th className="px-4 py-3">Seleção</th>
-                      <th className="px-3 py-3 text-center" title="Pontos">P</th>
-                      <th className="px-3 py-3 text-center" title="Jogos">J</th>
-                      <th className="px-3 py-3 text-center" title="Vitórias">V</th>
-                      <th className="px-3 py-3 text-center" title="Empates">E</th>
-                      <th className="px-3 py-3 text-center" title="Derrotas">D</th>
-                      <th className="px-3 py-3 text-center" title="Saldo de Gols">SG</th>
+                      <th className="py-3 w-[10%] text-center">#</th>
+                      <th className="py-3 w-[42%] text-left pl-2">Seleção</th>
+                      <th className="py-3 w-[8%] text-center" title="Pontos">P</th>
+                      <th className="py-3 w-[8%] text-center" title="Jogos">J</th>
+                      <th className="py-3 w-[8%] text-center" title="Vitórias">V</th>
+                      <th className="py-3 w-[8%] text-center" title="Empates">E</th>
+                      <th className="py-3 w-[8%] text-center" title="Derrotas">D</th>
+                      <th className="py-3 w-[8%] text-center" title="Saldo de Gols">SG</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -123,28 +152,27 @@ export default function Grupos() {
                         onClick={() => setTimeClicado(linha.team)}
                         className="hover:bg-zinc-800/80 transition-colors cursor-pointer group"
                       >
-                        {/* LÓGICA DE CORES: 1º e 2º Verde | 3º Classificado Laranja | Resto Cinza */}
-                        <td className={`px-4 py-3 text-center font-bold ${
+                        <td className={`py-3 text-center font-bold ${
                           index < 2 
                             ? 'text-emerald-400' 
                             : (index === 2 && idsDosOitoMelhores.includes(linha.team.id))
                               ? 'text-orange-500'
                               : 'text-zinc-600'
                         }`}>
-                          {linha.position}
+                          {linha.position}º
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <img src={linha.team.crest} alt={linha.team.shortName} className="w-5 h-5 object-contain group-hover:scale-110 transition-transform" />
-                            <span className="font-medium text-white whitespace-nowrap">{linha.team.shortName}</span>
+                        <td className="py-3 pl-2 pr-2">
+                          <div className="flex items-center gap-2 overflow-hidden">
+                            <img src={linha.team.crest} alt={linha.team.shortName} className="w-5 h-5 object-contain flex-shrink-0 group-hover:scale-110 transition-transform" />
+                            <span className="font-medium text-white truncate" title={linha.team.shortName}>{linha.team.shortName}</span>
                           </div>
                         </td>
-                        <td className="px-3 py-3 text-center font-bold text-white">{linha.points}</td>
-                        <td className="px-3 py-3 text-center text-zinc-400">{linha.playedGames}</td>
-                        <td className="px-3 py-3 text-center text-zinc-400">{linha.won}</td>
-                        <td className="px-3 py-3 text-center text-zinc-400">{linha.draw}</td>
-                        <td className="px-3 py-3 text-center text-zinc-400">{linha.lost}</td>
-                        <td className="px-3 py-3 text-center text-zinc-400 font-medium">{linha.goalDifference}</td>
+                        <td className="py-3 text-center font-bold text-white">{linha.points}</td>
+                        <td className="py-3 text-center text-zinc-400">{linha.playedGames}</td>
+                        <td className="py-3 text-center text-zinc-400">{linha.won}</td>
+                        <td className="py-3 text-center text-zinc-400">{linha.draw}</td>
+                        <td className="py-3 text-center text-zinc-400">{linha.lost}</td>
+                        <td className="py-3 text-center text-zinc-400 font-medium">{linha.goalDifference}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -156,15 +184,12 @@ export default function Grupos() {
 
         {/* SESSÃO: RANKING DOS MELHORES TERCEIROS */}
         {!isLoading && !error && melhoresTerceiros.length > 0 && (
-          <section className="flex flex-col gap-6 mt-4 items-center justify-center w-full">
-            <header className="flex flex-col gap-2 text-center max-w-xl">
-              <h2 className="text-2xl font-black text-white justify-center flex items-center gap-2">
-                Ranking dos 3º Colocados
-              </h2>
-              <p className="text-xs text-zinc-400">Na Copa de 2026, os 8 melhores terceiros colocados garantem vaga na fase de mata-mata.</p>
+          <section className="flex flex-col gap-6 mt-12 items-center justify-center w-full">
+            <header className="flex flex-col text-center max-w-2xl">
+              <h2 className="text-3xl font-black text-white">Ranking dos 3º Colocados</h2>
+              <p className="text-zinc-400 mt-2">Na Copa de 2026, os 8 melhores terceiros colocados garantem vaga na fase de mata-mata.</p>
             </header>
-
-            <div className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden w-full max-w-3xl shadow-xl">
+            <div className="bg-zinc-900/50 border border-white/5 rounded-2xl overflow-hidden w-full max-w-4xl shadow-xl">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead className="bg-zinc-950/50 text-xs text-zinc-500 uppercase font-semibold">
@@ -179,7 +204,7 @@ export default function Grupos() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {melhoresTerceiros.map((linha: any, index: number) => {
-                      const classificado = index < 8; // Os 8 primeiros passam!
+                      const classificado = index < 8; 
                       return (
                         <tr key={linha.team.id} className="hover:bg-zinc-800/50 transition-colors">
                           <td className="px-6 py-4 text-center font-black text-zinc-500">
@@ -201,7 +226,6 @@ export default function Grupos() {
                             {linha.goalDifference > 0 ? `+${linha.goalDifference}` : linha.goalDifference}
                           </td>
                           <td className="px-4 py-4 text-center">
-                            {/* VOLTOU PARA VERDE NA PÍLULA DE CLASSIFICADO */}
                             <span className={`px-3 py-1 text-[10px] uppercase tracking-wider font-bold rounded-full border ${
                               classificado 
                                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
@@ -219,7 +243,6 @@ export default function Grupos() {
             </div>
           </section>
         )}
-
       </main>
 
       {/* JANELA FLUTUANTE (MODAL) DO RAIO-X */}
@@ -244,12 +267,20 @@ export default function Grupos() {
               </button>
             </div>
 
-            {/* Corpo do Modal */}
+            {/* Corpo do Modal com Skeleton */}
             <div className="p-6 overflow-y-auto">
               {loadingTime ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-3">
-                  <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-sm text-zinc-500">Convocando jogadores...</p>
+                // SKELETON DOS JOGADORES NO MODAL
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-pulse">
+                  {[...Array(6)].map((_, i) => (
+                     <div key={i} className="flex items-center gap-3 bg-zinc-900/50 p-3 rounded-xl border border-white/5">
+                       <div className="w-10 h-10 rounded-full bg-zinc-800"></div>
+                       <div className="flex flex-col gap-2 w-full">
+                         <div className="h-3 bg-zinc-800 rounded w-3/4"></div>
+                         <div className="h-2 bg-zinc-800 rounded w-1/2"></div>
+                       </div>
+                     </div>
+                  ))}
                 </div>
               ) : dadosTime?.squad?.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -269,7 +300,6 @@ export default function Grupos() {
                 <p className="text-center text-zinc-500 py-10">Nenhum jogador encontrado para esta seleção no momento.</p>
               )}
             </div>
-
           </div>
         </div>
       )}
@@ -280,7 +310,6 @@ export default function Grupos() {
           Desenvolvido com <span className="text-emerald-500">💚</span> e muito código por <span className="font-bold text-zinc-300">Rafael Inacio</span>.
         </p>
       </footer>
-
     </div>
   );
 }

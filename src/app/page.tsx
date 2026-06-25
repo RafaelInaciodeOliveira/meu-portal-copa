@@ -23,7 +23,7 @@ export default function Home() {
     return () => document.body.classList.remove('overflow-hidden');
   }, [jogoClicado, jogadorClicado]);
 
-  // BUSCAS NA API (As originais e as novas dos modais)
+  // BUSCAS NA API
   const { data: dataJogos, error: erroJogos, isLoading: loadJogos } = useSWR('/api/jogos', fetcher, { refreshInterval: 15000 });
   const { data: dataArtilheiros, isLoading: loadArtilheiros } = useSWR('/api/artilheiros', fetcher);
   
@@ -117,7 +117,24 @@ export default function Home() {
               
               <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6">
                 {loadArtilheiros ? (
-                  <p className="text-sm text-zinc-500 text-center py-4">Buscando artilheiros...</p>
+                  /* =====================================
+                     SKELETON LOADER - ARTILHEIROS
+                     ===================================== */
+                  <div className="grid grid-cols-1 md:grid-rows-5 md:grid-flow-col md:auto-cols-fr gap-4 animate-pulse">
+                    {[...Array(10)].map((_, i) => (
+                      <div key={i} className="flex items-center justify-between bg-zinc-950/50 p-3 rounded-xl border border-white/5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-4 h-4 bg-zinc-800 rounded"></div>
+                          <div className="w-10 h-10 rounded-full bg-zinc-800"></div>
+                          <div className="flex flex-col gap-2">
+                            <div className="w-24 h-3 bg-zinc-800 rounded"></div>
+                            <div className="w-16 h-2 bg-zinc-800 rounded"></div>
+                          </div>
+                        </div>
+                        <div className="w-8 h-10 bg-zinc-800 rounded-lg"></div>
+                      </div>
+                    ))}
+                  </div>
                 ) : topArtilheiros.length === 0 ? (
                   <p className="text-sm text-zinc-500 text-center py-4">Nenhum gol marcado na competição ainda.</p>
                 ) : (
@@ -188,73 +205,91 @@ export default function Home() {
             </div>
 
             <div className="flex-1 bg-zinc-900/50 border border-white/5 rounded-2xl p-4 overflow-y-auto max-h-[595px] scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent">
-              {loadJogos && (
-                <div className="flex flex-col items-center justify-center h-40 gap-3">
-                  <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-sm text-zinc-500">Sincronizando dados...</p>
-                </div>
-              )}
-
-              {!loadJogos && !erroJogos && jogosExibidos.length === 0 && (
-                <div className="text-center mt-10 text-zinc-500 text-sm">
-                  Nenhum jogo encontrado para esta categoria.
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {!loadJogos && !erroJogos && jogosExibidos.map((jogo: any) => {
-                  const isAoVivo = jogo.status === 'IN_PLAY' || jogo.status === 'PAUSED';
-                  const isEncerrado = jogo.status === 'FINISHED';
-                  const isFuturo = jogo.status === 'TIMED' || jogo.status === 'SCHEDULED';
-                  
-                  const golsCasa = jogo.score?.fullTime?.home ?? jogo.score?.regularTime?.home ?? 0;
-                  const golsFora = jogo.score?.fullTime?.away ?? jogo.score?.regularTime?.away ?? 0;
-
-                  return (
-                    <div 
-                      key={jogo.id} 
-                      onClick={() => setJogoClicado(jogo.id)}
-                      className={`group bg-zinc-900 hover:bg-zinc-800 cursor-pointer rounded-xl p-4 border transition-all duration-300 ${isAoVivo ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-white/5 hover:border-emerald-500/30'}`}
-                    >
+              {loadJogos ? (
+                /* =====================================
+                   SKELETON LOADER - CENTRAL DE JOGOS
+                   ===================================== */
+                <div className="space-y-3 animate-pulse">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="bg-zinc-900/50 rounded-xl p-4 border border-white/5">
                       <div className="flex justify-between items-center mb-4">
-                        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded ${
-                          isAoVivo ? 'bg-red-500/10 text-red-500 border border-red-500/20 animate-pulse' : 
-                          isEncerrado ? 'bg-zinc-800 text-zinc-400' : 
-                          'bg-blue-500/10 text-blue-400 border border-blue-500/20'
-                        }`}>
-                          {isEncerrado ? 'Encerrado' : isAoVivo ? '🔴 Ao Vivo' : 'A Iniciar'}
-                        </span>
-                        <span className="text-xs text-zinc-500 font-medium group-hover:text-white transition-colors">
-                          {isFuturo 
-                            ? new Date(jogo.utcDate).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) 
-                            : new Date(jogo.utcDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                        </span>
+                        <div className="h-4 bg-zinc-800 rounded w-16"></div>
+                        <div className="h-3 bg-zinc-800 rounded w-12"></div>
                       </div>
                       <div className="flex justify-between items-center">
                         <div className="flex flex-col items-center gap-2 w-[35%]">
-                          <img src={jogo.homeTeam.crest} alt={jogo.homeTeam.shortName} className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" />
-                          <span className="font-semibold text-sm text-center line-clamp-1">{jogo.homeTeam.shortName}</span>
+                          <div className="w-8 h-8 rounded-full bg-zinc-800"></div>
+                          <div className="h-3 bg-zinc-800 rounded w-16"></div>
                         </div>
-                        <div className="flex items-center justify-center gap-2 w-[30%] font-black text-2xl group-hover:scale-110 transition-transform">
-                          {isFuturo ? (
-                            <span className="text-zinc-600 text-lg">- x -</span>
-                          ) : (
-                            <>
-                              <span className={golsCasa > golsFora ? 'text-emerald-400' : 'text-white'}>{golsCasa}</span>
-                              <span className="text-zinc-700 text-sm font-normal">x</span>
-                              <span className={golsFora > golsCasa ? 'text-emerald-400' : 'text-white'}>{golsFora}</span>
-                            </>
-                          )}
-                        </div>
+                        <div className="h-6 bg-zinc-800 rounded w-12"></div>
                         <div className="flex flex-col items-center gap-2 w-[35%]">
-                          <img src={jogo.awayTeam.crest} alt={jogo.awayTeam.shortName} className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" />
-                          <span className="font-semibold text-sm text-center line-clamp-1">{jogo.awayTeam.shortName}</span>
+                          <div className="w-8 h-8 rounded-full bg-zinc-800"></div>
+                          <div className="h-3 bg-zinc-800 rounded w-16"></div>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              ) : !erroJogos && jogosExibidos.length === 0 ? (
+                <div className="text-center mt-10 text-zinc-500 text-sm">
+                  Nenhum jogo encontrado para esta categoria.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {!erroJogos && jogosExibidos.map((jogo: any) => {
+                    const isAoVivo = jogo.status === 'IN_PLAY' || jogo.status === 'PAUSED';
+                    const isEncerrado = jogo.status === 'FINISHED';
+                    const isFuturo = jogo.status === 'TIMED' || jogo.status === 'SCHEDULED';
+                    
+                    const golsCasa = jogo.score?.fullTime?.home ?? jogo.score?.regularTime?.home ?? 0;
+                    const golsFora = jogo.score?.fullTime?.away ?? jogo.score?.regularTime?.away ?? 0;
+
+                    return (
+                      <div 
+                        key={jogo.id} 
+                        onClick={() => setJogoClicado(jogo.id)}
+                        className={`group bg-zinc-900 hover:bg-zinc-800 cursor-pointer rounded-xl p-4 border transition-all duration-300 ${isAoVivo ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'border-white/5 hover:border-emerald-500/30'}`}
+                      >
+                        <div className="flex justify-between items-center mb-4">
+                          <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded ${
+                            isAoVivo ? 'bg-red-500/10 text-red-500 border border-red-500/20 animate-pulse' : 
+                            isEncerrado ? 'bg-zinc-800 text-zinc-400' : 
+                            'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                          }`}>
+                            {isEncerrado ? 'Encerrado' : isAoVivo ? '🔴 Ao Vivo' : 'A Iniciar'}
+                          </span>
+                          <span className="text-xs text-zinc-500 font-medium group-hover:text-white transition-colors">
+                            {isFuturo 
+                              ? new Date(jogo.utcDate).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) 
+                              : new Date(jogo.utcDate).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div className="flex flex-col items-center gap-2 w-[35%]">
+                            <img src={jogo.homeTeam.crest} alt={jogo.homeTeam.shortName} className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" />
+                            <span className="font-semibold text-sm text-center line-clamp-1">{jogo.homeTeam.shortName}</span>
+                          </div>
+                          <div className="flex items-center justify-center gap-2 w-[30%] font-black text-2xl group-hover:scale-110 transition-transform">
+                            {isFuturo ? (
+                              <span className="text-zinc-600 text-lg">- x -</span>
+                            ) : (
+                              <>
+                                <span className={golsCasa > golsFora ? 'text-emerald-400' : 'text-white'}>{golsCasa}</span>
+                                <span className="text-zinc-700 text-sm font-normal">x</span>
+                                <span className={golsFora > golsCasa ? 'text-emerald-400' : 'text-white'}>{golsFora}</span>
+                              </>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-center gap-2 w-[35%]">
+                            <img src={jogo.awayTeam.crest} alt={jogo.awayTeam.shortName} className="w-8 h-8 object-contain drop-shadow-lg group-hover:scale-110 transition-transform" />
+                            <span className="font-semibold text-sm text-center line-clamp-1">{jogo.awayTeam.shortName}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </section>
         </div>
@@ -271,25 +306,34 @@ export default function Home() {
             
             <div className="p-6 overflow-y-auto">
               {loadDadosJogador ? (
-                <div className="flex flex-col items-center justify-center py-10 gap-3">
-                  <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm text-zinc-500">Buscando dados do atleta...</span>
+                /* =====================================
+                   SKELETON LOADER - MODAL DO JOGADOR
+                   ===================================== */
+                <div className="flex flex-col items-center text-center gap-6 animate-pulse">
+                  <div className="w-32 h-32 rounded-full bg-zinc-800"></div>
+                  <div className="flex flex-col gap-2 items-center w-full">
+                    <div className="w-48 h-6 bg-zinc-800 rounded"></div>
+                    <div className="w-24 h-4 bg-zinc-800 rounded"></div>
+                  </div>
+                  <div className="w-full bg-zinc-900/50 rounded-xl p-4 grid grid-cols-2 gap-4">
+                    <div className="h-10 bg-zinc-800 rounded"></div>
+                    <div className="h-10 bg-zinc-800 rounded"></div>
+                    <div className="h-10 bg-zinc-800 rounded"></div>
+                    <div className="h-10 bg-zinc-800 rounded"></div>
+                    <div className="col-span-2 h-14 bg-zinc-800 rounded mt-2"></div>
+                  </div>
                 </div>
               ) : dadosJogador && !dadosJogador.message ? (
                 <div className="flex flex-col items-center text-center gap-6">
-                  
-                  {/* FOTO DO JOGADOR - AGORA CARREGA A INICIAL DIRETO, SEM ATRASO */}
                   <div className="w-32 h-32 rounded-full border-4 border-emerald-500/20 p-1 shadow-[0_0_30px_rgba(16,185,129,0.15)] bg-zinc-900 flex items-center justify-center">
                     <span className="text-6xl font-black text-emerald-500">
                       {dadosJogador.nome.charAt(0)}
                     </span>
                   </div>
-                  
                   <div>
                     <h4 className="text-2xl font-black text-white">{dadosJogador.nome}</h4>
                     <p className="text-emerald-500 font-medium">{dadosJogador.posicao || 'Jogador'}</p>
                   </div>
-                  
                   <div className="w-full bg-zinc-900 rounded-xl p-4 grid grid-cols-2 gap-4 border border-white/5 text-left">
                     <div>
                       <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Nacionalidade</p>
@@ -307,14 +351,12 @@ export default function Home() {
                       <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Peso</p>
                       <p className="text-sm text-white font-medium">{dadosJogador.peso || '-'}</p>
                     </div>
-                    
                     {dadosJogador.clube && (
                       <div className="col-span-2 flex items-center justify-between bg-zinc-950 p-3 rounded-lg border border-white/5 mt-2">
                         <div className="flex flex-col">
                           <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Seleção</p>
                           <span className="text-white font-bold">{dadosJogador.clube}</span>
                         </div>
-                        {/* REMOVEMOS A IMAGEM QUEBRADA DO ESCUDO DA SELEÇÃO AQUI */}
                       </div>
                     )}
                   </div>
@@ -339,7 +381,30 @@ export default function Home() {
             </div>
             <div className="p-6 overflow-y-auto">
               {loadDadosJogo ? (
-                <div className="flex justify-center py-10"><div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div></div>
+                /* =====================================
+                   SKELETON LOADER - MODAL DO JOGO
+                   ===================================== */
+                <div className="flex flex-col gap-6 animate-pulse">
+                  <div className="flex items-center justify-center gap-6 bg-zinc-900/50 p-6 rounded-2xl border border-white/5">
+                    <div className="flex flex-col items-center gap-2 w-1/3">
+                      <div className="w-16 h-16 rounded-full bg-zinc-800"></div>
+                      <div className="h-4 bg-zinc-800 rounded w-16"></div>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 w-1/3">
+                      <div className="h-12 bg-zinc-800 rounded w-24"></div>
+                      <div className="h-3 bg-zinc-800 rounded w-16"></div>
+                    </div>
+                    <div className="flex flex-col items-center gap-2 w-1/3">
+                      <div className="w-16 h-16 rounded-full bg-zinc-800"></div>
+                      <div className="h-4 bg-zinc-800 rounded w-16"></div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="h-24 bg-zinc-900/50 rounded-xl"></div>
+                    <div className="h-24 bg-zinc-900/50 rounded-xl"></div>
+                  </div>
+                  <div className="h-32 bg-zinc-900/50 rounded-xl"></div>
+                </div>
               ) : dadosJogo ? (
                 <div className="flex flex-col gap-6">
                   {/* Placar */}
@@ -362,14 +427,11 @@ export default function Home() {
 
                   {/* Detalhes da Partida */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Estádio */}
                     <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
                       <p className="text-xs text-zinc-500 uppercase font-bold mb-2">🏟️ Informações</p>
                       <p className="text-sm text-white mb-1"><strong>Estádio:</strong> {dadosJogo.venue}</p>
                       <p className="text-sm text-white"><strong>Data:</strong> {new Date(dadosJogo.utcDate).toLocaleString('pt-BR')}</p>
                     </div>
-                    
-                    {/* Arbitragem */}
                     <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
                       <p className="text-xs text-zinc-500 uppercase font-bold mb-2">⚖️ Arbitragem</p>
                       <p className="text-sm text-white">
@@ -378,7 +440,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* EVENTOS DA PARTIDA (GOLS OU AVISO DE LIMITAÇÃO) */}
+                  {/* EVENTOS DA PARTIDA */}
                   <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
                     <h4 className="text-xs text-zinc-500 uppercase font-bold mb-4 flex items-center gap-2">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -386,7 +448,6 @@ export default function Home() {
                       </svg>
                       Súmula da Partida
                     </h4>
-                    
                     {dadosJogo.goals && dadosJogo.goals.length > 0 ? (
                       <div className="space-y-2">
                         {dadosJogo.goals.map((gol: any, index: number) => (
@@ -398,7 +459,6 @@ export default function Home() {
                         ))}
                       </div>
                     ) : (
-                      // MENSAGEM ELEGANTE E MINIMALISTA
                       <div className="flex flex-col items-center justify-center py-10 px-4 border border-dashed border-white/10 rounded-xl bg-zinc-950/30">
                         <svg className="w-8 h-8 text-zinc-700 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
