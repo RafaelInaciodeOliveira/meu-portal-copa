@@ -366,7 +366,7 @@ export default function EstatisticasPage() {
       {/* RODAPÉ */}
       <footer className="w-full max-w-7xl mx-auto px-4 py-8 mt-auto border-t border-white/5 flex items-center justify-center">
         <p className="text-sm text-zinc-500">
-          Desenvolvido com muita dedicação e código por <span className="font-bold text-zinc-300">Rafael Inacio</span>.
+          Desenvolvido com <span className="text-emerald-500">💚</span> e muito código por <span className="font-bold text-zinc-300">Rafael Inacio</span>.
         </p>
       </footer>
 
