@@ -260,7 +260,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* MODAL 1: PERFIL DO JOGADOR (ATUALIZADO COM FOTO DA API-FOOTBALL) */}
+      {/* MODAL 1: PERFIL DO JOGADOR */}
       {jogadorClicado && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-zinc-950 border border-white/10 rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -273,14 +273,16 @@ export default function Home() {
               {loadDadosJogador ? (
                 <div className="flex flex-col items-center justify-center py-10 gap-3">
                   <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-sm text-zinc-500">Buscando foto e dados reais...</span>
+                  <span className="text-sm text-zinc-500">Buscando dados do atleta...</span>
                 </div>
               ) : dadosJogador && !dadosJogador.message ? (
                 <div className="flex flex-col items-center text-center gap-6">
                   
-                  {/* FOTO REAL DO JOGADOR */}
-                  <div className="w-32 h-32 rounded-full border-4 border-emerald-500/20 p-1 overflow-hidden shadow-[0_0_30px_rgba(16,185,129,0.15)] bg-zinc-900">
-                    <img src={dadosJogador.foto} alt={dadosJogador.nome} className="w-full h-full object-cover rounded-full" />
+                  {/* FOTO DO JOGADOR - AGORA CARREGA A INICIAL DIRETO, SEM ATRASO */}
+                  <div className="w-32 h-32 rounded-full border-4 border-emerald-500/20 p-1 shadow-[0_0_30px_rgba(16,185,129,0.15)] bg-zinc-900 flex items-center justify-center">
+                    <span className="text-6xl font-black text-emerald-500">
+                      {dadosJogador.nome.charAt(0)}
+                    </span>
                   </div>
                   
                   <div>
@@ -309,12 +311,10 @@ export default function Home() {
                     {dadosJogador.clube && (
                       <div className="col-span-2 flex items-center justify-between bg-zinc-950 p-3 rounded-lg border border-white/5 mt-2">
                         <div className="flex flex-col">
-                          <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Clube Atual</p>
+                          <p className="text-xs text-zinc-500 uppercase font-bold mb-1">Seleção</p>
                           <span className="text-white font-bold">{dadosJogador.clube}</span>
                         </div>
-                        {dadosJogador.escudoClube && (
-                          <img src={dadosJogador.escudoClube} alt={dadosJogador.clube} className="w-10 h-10 object-contain drop-shadow-md" />
-                        )}
+                        {/* REMOVEMOS A IMAGEM QUEBRADA DO ESCUDO DA SELEÇÃO AQUI */}
                       </div>
                     )}
                   </div>
@@ -365,34 +365,52 @@ export default function Home() {
                     {/* Estádio */}
                     <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
                       <p className="text-xs text-zinc-500 uppercase font-bold mb-2">🏟️ Informações</p>
-                      <p className="text-sm text-white mb-1"><strong>Estádio:</strong> {dadosJogo.venue || 'Não informado'}</p>
+                      <p className="text-sm text-white mb-1"><strong>Estádio:</strong> {dadosJogo.venue}</p>
                       <p className="text-sm text-white"><strong>Data:</strong> {new Date(dadosJogo.utcDate).toLocaleString('pt-BR')}</p>
                     </div>
                     
                     {/* Arbitragem */}
                     <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-zinc-500 uppercase font-bold mb-2">⚖️ Arbitragem principal</p>
+                      <p className="text-xs text-zinc-500 uppercase font-bold mb-2">⚖️ Arbitragem</p>
                       <p className="text-sm text-white">
-                        {dadosJogo.referees && dadosJogo.referees.length > 0 ? dadosJogo.referees[0].name : 'Não informado'}
+                        {dadosJogo.referees[0].name}
                       </p>
                     </div>
                   </div>
 
-                  {/* Gols marcados */}
-                  {dadosJogo.goals && dadosJogo.goals.length > 0 && (
-                    <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
-                      <p className="text-xs text-zinc-500 uppercase font-bold mb-3">⚽ Gols da Partida</p>
+                  {/* EVENTOS DA PARTIDA (GOLS OU AVISO DE LIMITAÇÃO) */}
+                  <div className="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                    <h4 className="text-xs text-zinc-500 uppercase font-bold mb-4 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Súmula da Partida
+                    </h4>
+                    
+                    {dadosJogo.goals && dadosJogo.goals.length > 0 ? (
                       <div className="space-y-2">
                         {dadosJogo.goals.map((gol: any, index: number) => (
-                          <div key={index} className="flex items-center gap-3 bg-zinc-950 p-2 rounded-lg border border-white/5">
+                          <div key={index} className="flex items-center gap-3 bg-zinc-950 p-3 rounded-lg border border-white/5">
                             <span className="text-emerald-500 font-bold text-sm w-8">{gol.minute}'</span>
                             <span className="text-white text-sm font-medium">{gol.scorer?.name}</span>
                             <span className="text-zinc-500 text-xs ml-auto">({gol.team?.name})</span>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      // MENSAGEM ELEGANTE E MINIMALISTA
+                      <div className="flex flex-col items-center justify-center py-10 px-4 border border-dashed border-white/10 rounded-xl bg-zinc-950/30">
+                        <svg className="w-8 h-8 text-zinc-700 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p className="text-sm text-zinc-300 font-semibold tracking-wide">Dados Indisponíveis</p>
+                        <p className="text-xs text-center text-zinc-500 mt-2 max-w-[280px]">
+                          Os eventos detalhados minuto a minuto desta partida ainda não foram processados pelo painel estatístico.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
                 </div>
               ) : (
                 <p className="text-center text-zinc-500">Erro ao carregar partida.</p>
